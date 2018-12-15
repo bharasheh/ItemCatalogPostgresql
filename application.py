@@ -29,7 +29,7 @@ session = DBSession()
 
 auth = HTTPBasicAuth()
 
-CLIENT_ID = json.loads(open('client_secrets.json', 'r')
+CLIENT_ID = json.loads(open('/var/www/ItemCatalog/client_secrets.json', 'r')
                        .read())['web']['client_id']
 
 
