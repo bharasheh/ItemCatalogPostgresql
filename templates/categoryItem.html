@@ -1,0 +1,17 @@
+{% extends "template.html" %}
+{% block content %}
+	<div class='pane'>
+		<div class='header'>
+			<h1>{{category_item.title}}</h1>
+		</div>
+
+		<div>
+			<span class='name'><p>{{category_item.description}}</p></span>
+		</div>
+	
+		{% if session.logged_in and session.user_id == category_item.user_id %}
+			<a href="{{url_for('editCategoryItem', category_item_title = category_item.title)}}" class='requireLogin'>Edit</a>
+			<a href="{{url_for('deleteCategoryItem', category_item_title = category_item.title)}}" class='requireLogin'>Delete</a>
+		{% endif %}
+	</div>
+{% endblock %}}

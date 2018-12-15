@@ -1,0 +1,36 @@
+{% extends "template.html" %}
+{% block content %}
+	<div class='pane'>
+		<h1>Categories</h1>
+
+		{% for category in categories %}
+		<div>
+			<span class='name'>
+				<a href="{{url_for('showCategoryItems', category_name = category.name)}}">{{category.name}}</a>
+			</span>
+		</div>
+		{% endfor %}
+		
+		<div>
+			<form action="{{url_for('newCategoryItem')}}">
+				<button type='submit' class='requireLogin'>Add Item</button>
+			</form>
+			<h1>Latest Items</h1>
+		</div>
+		
+		{% for latest_item in latest_items %}
+		<div>
+			<span class='name'>
+				<a href="{{url_for('showCategoryItem', category_name = latest_item.category.name, category_item_title = latest_item.title)}}">{{latest_item.title}} ( {{latest_item.category.name}} )</a>
+			</span>
+		</div>
+		{% endfor %}
+	</div>
+	<script>
+		{% if session.logged_in %}
+			$('.requireLogin').attr('style', 'display: inline');
+		{% else %}
+			$('.requireLogin').attr('style', 'display: none');
+		{% endif %}
+	</script>	
+{% endblock %}}

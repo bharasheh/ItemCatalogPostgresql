@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Item Catalog Project - Baha Harasheh</title>
+		<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+		<!--LOAD PRE-REQUISITES FOR GOOGLE SIGN IN -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+		<script src="https://apis.google.com/js/platform.js?onload=start"></script>
+		<!--meta name="google-signin-client_id" content="13140951618-15nik769cellkubaqnjk5facdib2dh4d.apps.googleusercontent.com"-->
+		<script>
+			gapi.load('auth2', function() {
+				auth2 = gapi.auth2.init({
+					client_id: '623943676469-ompbea4mk8u92onfpk10rdspfgapvaj2.apps.googleusercontent.com',
+					// Scopes to request in addition to 'profile' and 'email'
+					//scope: 'additional_scope'
+				});
+			});
+		</script>
+		<!-- END PRE-REQUISITES FOR GOOGLE SIGN IN -->
+	</head>
+	<body>
+
+		<div id="result"></div>
+		<!--NEW GOOGLE SIGN IN BUTTON -->
+		<button id="signinButton">Login</button>
+		<!-- Add where you want your sign-in button to render -->
+		<!-- Use an image that follows the branding guidelines in a real app -->
+		<script>
+			$('#signinButton').click(function() {
+				auth2.grantOfflineAccess({'redirect_uri': 'postmessage'}).then(signInCallback);
+			});
+		</script>
+		<!--END NEW GOOGLE BUTTON -->
+
+		<!--NEW GOOGLE SIGN IN CODE -->
+		<script>
+			function signInCallback(json) {
+				console.log('inside callback fuction');
+				console.log(json);
+				// authResult = JSON.parse(json);
+				authResult = json;
+				if (authResult['code']) {
+					// Hide the sign-in button now that the user is authorized, for example:
+					// Send the code to the server
+					$.ajax({
+						type: 'POST',
+						url: '/oauth/google',
+						processData: false,
+						data: authResult['code'],
+						contentType: 'application/octet-stream; charset=utf-8',
+						success: function(result) {
+							// Handle or verify the server response if necessary.
+							if (result) {
+								$('#result').html('Login Successful!')
+								$('#signinButton').attr('style', 'display: none');
+								$('#signoutButton').attr('style', 'display: inline');
+								$('.requireLogin').attr('style', 'display: inline');
+							} else if (authResult['error']) {
+								console.log('There was an error: ' + authResult['error']);
+							} else {
+								$('#result').html('Failed to make a server-side call. Check your configuration and console.');
+							}
+						}
+					});
+				}
+			}
+		</script>
+
+		<button id="signoutButton">Logout</button>
+		<script>
+			var auth2;
+			gapi.load('auth2', function() {
+				auth2 = gapi.auth2.init();
+			});
+
+			{% if session.logged_in %}
+				$('#signinButton').attr('style', 'display: none');
+				$('#signoutButton').attr('style', 'display: inline');
+				$('.requireLogin').attr('style', 'display: inline');
+			{% else %}
+				$('#signinButton').attr('style', 'display: inline');
+				$('#signoutButton').attr('style', 'display: none');
+				$('.requireLogin').attr('style', 'display: none');
+			{% endif %}
+			
+			$('#signoutButton').click(function() {
+				auth2.signOut().then(function() {
+					console.log('User signed out.');
+					// Send the code to the server
+					$.ajax({
+						type: 'GET',
+						url: '/logout',
+						processData: false,
+						contentType: 'application/octet-stream; charset=utf-8',
+						success: function(result) {
+							// Handle or verify the server response if necessary.
+							if (result) {
+								$('#result').html('Logout Successful!')
+								$('#signinButton').attr('style', 'display: inline');
+								$('#signoutButton').attr('style', 'display: none');
+								$('.requireLogin').attr('style', 'display: none');
+							} else if (authResult['error']) {
+								console.log('There was an error: ' + authResult['error']);
+							} else {
+								$('#result').html('Failed to make a server-side call. Check your configuration and console.');
+							}
+						}
+					});
+				});
+			});
+			
+			function onSignIn() {
+				var profile = auth2.currentUser.get().getBasicProfile();
+				console.log('User logged in.');
+				console.log('ID:', profile.getId());
+				console.log('Name:', profile.getName());
+				console.log('Image URL:', profile.getImageUrl());
+				console.log('Email:', profile.getEmail());
+			}
+		</script>
+		<!--END GOOGLE SIGN IN CODE -->
+
+		<div class = 'header'>
+			<h1>Catalog App</h1>
+		</div>
+
+		<div class = 'flash'>
+			{% with messages = get_flashed_messages() %}
+			{% if messages %}
+				<ul>
+					{% for message in messages %}
+						<li> <strong> {{ message }} </strong> </li>
+					{% endfor %}
+				</ul>
+			{% endif %}
+			{% endwith %}
+		</div>
+
+		<div class="container">
+			{% block content %}
+			{% endblock %}
+		</div>
+		
+	</body>
+</html>

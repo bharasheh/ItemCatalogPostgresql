@@ -1,0 +1,14 @@
+{% extends "template.html" %}
+{% block content %}
+	<div class='pane'>
+		<div class='header'>
+			<h1>Delete Item</h1>
+		</div>
+		
+		<h2>Are you sure you want to delete {{categoryItemToDelete.title}}?</h2>
+
+		<form action="{{ url_for('deleteCategoryItem', category_item_title=categoryItemToDelete.title)}}" method = 'post'>
+			<button type='submit'>Delete</button>
+		</form>
+	</div>
+{% endblock %}}
